@@ -38,13 +38,16 @@ void setup(){
 
 
 void updateControl(){
-  pinMode(buttonPin, INPUT);
+ static char prevButton; // static causes it to keep the state from the last call...
+
+  pinMode(buttonPin, INPUT); // this should be in setup(), but whatever :)
   buttonState = digitalRead(buttonPin);
-  if(kTriggerDelay.ready() && buttonState == HIGH){
+  if(kTriggerDelay.ready() &&( buttonState == HIGH) &&( prevButton == LOW)){
     aSample.start();
-    kTriggerDelay.start();
-    
+    kTriggerDelay.start();    
   }
+ prevButton = buttonState; // update our history variable.
+
 }
 
 
