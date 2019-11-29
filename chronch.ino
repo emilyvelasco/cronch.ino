@@ -19,9 +19,9 @@
 #include <Sample.h> // Sample template
 #include <samples/cronch.h>
 #include <EventDelay.h>
-const int buttonPin = 4;
+const int buttonPin = 5;
 int buttonState = LOW;
-#define CONTROL_RATE 64
+#define CONTROL_RATE 63
 
 // use: Sample <table_size, update_rate> SampleName (wavetable)
 Sample <cronch_NUM_CELLS, AUDIO_RATE> aSample(cronch_DATA);
@@ -29,27 +29,29 @@ Sample <cronch_NUM_CELLS, AUDIO_RATE> aSample(cronch_DATA);
 // for scheduling sample start
 EventDelay kTriggerDelay;
 
+boolean triggered = false;
+
 void setup(){
 
   startMozzi(CONTROL_RATE);
-  aSample.setFreq((float) (cronch_SAMPLERATE * 2) / (float) cronch_NUM_CELLS); // play at the speed it was recorded
+  aSample.setFreq((float) (cronch_SAMPLERATE *1.75) / (float) cronch_NUM_CELLS); // play at the speed it was recorded
   kTriggerDelay.set(1500); // 1500 msec countdown, within resolution of CONTROL_RATE
 }
 
 
 void updateControl(){
- static char prevButton; // static causes it to keep the state from the last call...
-
-  pinMode(buttonPin, INPUT); // this should be in setup(), but whatever :)
+  pinMode(buttonPin, INPUT);
   buttonState = digitalRead(buttonPin);
-  if(kTriggerDelay.ready() &&( buttonState == HIGH) &&( prevButton == LOW)){
-    aSample.start();
-    kTriggerDelay.start();    
+  if(buttonState == HIGH){
+    if(!triggered){
+      aSample.start();
+      //kTriggerDelay.start();
+      triggered = true;
   }
- prevButton = buttonState; // update our history variable.
-
+}else{
+  triggered = false;
 }
-
+}
 
 int updateAudio(){
   return (int) aSample.next();
